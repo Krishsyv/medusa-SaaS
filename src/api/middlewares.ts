@@ -17,7 +17,6 @@ export default defineMiddlewares({
               const academyService: AcademyService = req.scope.resolve(
                 APP_MODULE.ACADEMY
               );
-              console.log("auth_req.auth_context", auth_req.auth_context)
               const get_customer = await customerService.retrieveCustomer(
                 auth_req.auth_context.actor_id
               );

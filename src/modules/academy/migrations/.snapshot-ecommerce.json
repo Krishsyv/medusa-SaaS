@@ -879,21 +879,21 @@
         },
         "portal_id": {
           "name": "portal_id",
-          "type": "integer",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "mappedType": "text"
         },
         "student_enrollment_code": {
           "name": "student_enrollment_code",
-          "type": "integer",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "mappedType": "text"
         },
         "father_name": {
           "name": "father_name",

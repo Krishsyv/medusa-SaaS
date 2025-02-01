@@ -4,8 +4,8 @@ import { Student } from "./student";
 
 export const StudentProfile = model.define(APP_ENTITY.student_profile, {
   id: model.id().primaryKey(),
-  portal_id: model.number(),
-  student_enrollment_code: model.number(),
+  portal_id: model.text(),
+  student_enrollment_code: model.text(),
   father_name: model.text().nullable(),
   mother_name: model.text().nullable(),
   mother_phone: model.text().nullable(),

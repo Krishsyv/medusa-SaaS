@@ -24,18 +24,20 @@ export async function PATCH(req: AuthenticatedRequest, res: MedusaResponse) {
       },
       { relations: [APP_ENTITY.student_profile] }
     );
-
+    
     if (!get_student.student_profile) {
-      const create_student_profile = await academyService.updateStudents({
+      const create_student_profile = await academyService.createStudentProfiles({
         ...body,
+        portal_id: req.portal_id,
         student: get_student.id,
+        student_enrollment_code: req.student_enrollment_code,
         student_name: body.student_name || get_student.student_name,
       });
-
+      
       res.status(201).json(create_student_profile);
       return;
     }
-
+    
     const update_student = await academyService.updateStudents({
       ...body,
       student: get_student.id,
