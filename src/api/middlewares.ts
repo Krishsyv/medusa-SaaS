@@ -1,8 +1,7 @@
 import { Modules } from "@medusajs/framework/utils";
-import { authenticate, defineMiddlewares, MedusaRequest } from "@medusajs/framework/http";
+import { defineMiddlewares, MedusaRequest } from "@medusajs/framework/http";
 import { AuthenticatedRequest, APP_MODULE } from "src/constants";
 import AcademyService from "src/modules/academy/service";
-
 
 export default defineMiddlewares({
   routes: [
@@ -25,10 +24,10 @@ export default defineMiddlewares({
                 get_customer.email
               );
               auth_req.portal_id = get_student.portal_id;
-              auth_req.student_enrollment_code = get_student.student_enrollment_code;
+              auth_req.student_enrollment_code =
+                get_student.student_enrollment_code;
               next();
             }
-
           } catch (error) {
             res.status(500).json({ message: "Error in validating User" });
           }
