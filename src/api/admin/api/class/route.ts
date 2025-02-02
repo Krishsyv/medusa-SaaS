@@ -1,6 +1,12 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { APP_MODULE, NameInput, NameSchema, nameSchema } from "src/constants";
+import {
+  APP_MODULE,
+  NameInput,
+  NameSchema,
+  nameSchema,
+  APP_ENTITY,
+} from "src/constants";
 import AcademyService from "src/modules/academy/service";
 
 export const POST = async (
@@ -24,7 +30,7 @@ export const POST = async (
     }
     const create_class = await academyService.createClasses(req.body);
 
-    res.status(201).json({ create_class });
+    res.status(201).json(create_class);
   } catch (error) {
     res.json(error);
   }
@@ -40,16 +46,16 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       const get_class = await academyService.retrieveClass(
         req.query.id as string
       );
-      res.status(200).json({ get_class });
+      res.status(200).json(get_class);
       return;
     }
 
     const { data: classes, metadata } = await query.graph({
-      entity: "class",
+      entity: APP_ENTITY.class,
       fields: ["id", "name"],
       pagination: {
         skip: Number(req.query.skip) || 0,
-        take: Number(req.query.limit) || 5,
+        take: Number(req.query.take) || 5,
       },
     });
 
@@ -57,7 +63,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       list: classes,
       count: metadata?.count,
       limit: Number(req.query.skip),
-      offset: Number(req.query.limit),
+      offset: Number(req.query.take),
     });
   } catch (error) {
     res.json(error);

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { sdk } from "../lib/sdk"; // Ensure SDK is configured properly
+import { sdk } from "../lib/sdk";
 import { toast } from "@medusajs/ui";
+import { API_TYPE } from "../shared";
 
 export const useGetData = <T>(
   key: string,
@@ -12,8 +13,8 @@ export const useGetData = <T>(
     queryFn: async () => {
       return sdk.client.fetch(endpoint, { query: params });
     },
-		experimental_prefetchInRender: true,
-		throwOnError: true,
+    experimental_prefetchInRender: true,
+    throwOnError: true,
   });
 };
 
@@ -26,7 +27,7 @@ export const usePostData = <T>(
   return useMutation<T, unknown, object>({
     mutationFn: async (data) => {
       return sdk.client.fetch(endpoint, {
-        method: "POST",
+        method: API_TYPE.POST,
         body: data,
         headers: { "Content-Type": "application/json" },
       });
@@ -35,9 +36,9 @@ export const usePostData = <T>(
       queryClient.invalidateQueries({ queryKey: [key] });
       toast.success(successMessage || "Created successfully!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Post error:", error);
-      toast.error("Failed to create.");
+      toast.error(error.message || "Failed to create");
     },
   });
 };
@@ -51,7 +52,7 @@ export const usePatchData = <T>(
   return useMutation<T, unknown, { id: string; data: object }>({
     mutationFn: async ({ id, data }) => {
       return sdk.client.fetch(`${endpoint}/${id}`, {
-        method: "PATCH",
+        method: API_TYPE.PATCH,
         body: data,
         headers: { "Content-Type": "application/json" },
       });
@@ -60,9 +61,9 @@ export const usePatchData = <T>(
       queryClient.invalidateQueries({ queryKey: [key] });
       toast.success(successMessage || "Updated successfully!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Patch error:", error);
-      toast.error("Failed to update.");
+      toast.error(error.message || "Failed to update");
     },
   });
 };
@@ -76,16 +77,30 @@ export const useDeleteData = (
   return useMutation<void, unknown, string>({
     mutationFn: async (id) => {
       return sdk.client.fetch(`${endpoint}/${id}`, {
-        method: "DELETE",
+        method: API_TYPE.DELETE,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [key] });
       toast.success(successMessage || "Deleted successfully!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Delete error:", error);
-      toast.error("Failed to delete.");
+      toast.error(error.message || "Failed to delete");
     },
   });
 };
+
+// Usage
+
+// // Update class
+// const updateClass = usePatchData("classes", "/admin/api/class", "Class updated successfully!");
+// const handleUpdate = (id: string) => {
+//   updateClass.mutate({ id, data: { name: "Updated Class" } });
+// };
+
+// // Delete class
+// const deleteClass = useDeleteData("classes", "/admin/api/class", "Class deleted successfully!");
+// const handleDelete = (id: string) => {
+//   deleteClass.mutate(id);
+// };

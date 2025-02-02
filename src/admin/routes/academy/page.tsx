@@ -1,117 +1,147 @@
+import { useState } from "react";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { AcademicCapSolid } from "@medusajs/icons";
 import {
-  Container,
   Heading,
-  createDataTableColumnHelper,
-  DataTable,
-  DataTablePaginationState,
-  useDataTable,
-  Input,
-  toast,
+  Container,
   Button,
+  createDataTableColumnHelper,
 } from "@medusajs/ui";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { sdk } from "../../lib/sdk";
-import { useState, useCallback } from "react";
-import { IdNameResponse, IdNameDTO } from "../../constants";
+import { FormProvider, useForm } from "react-hook-form";
+import { FormModal, TextInput, DataTable } from "../../components";
+import { ENDPOINT, IdNameDTO, QUERY_KEY, WIDGET } from "../../shared";
+import { usePostData } from "../../lib/use_api";
 
 const columnHelper = createDataTableColumnHelper<IdNameDTO>();
 
-const columns = [
-  columnHelper.accessor("id", { header: "ID" }),
-  columnHelper.accessor("name", { header: "Name" }),
-];
+enum LABEL {
+  class = "Class",
+  section = "Section",
+  language = "Language",
+}
+
+enum FIELD {
+  class = "class",
+  section = "section",
+  language = "language",
+}
 
 const AcademyPage = () => {
-  const queryClient = useQueryClient();
+  return (
+    <>
+      <Heading className="p-5">Academy</Heading>
+      {/* Class */}
+      <Section 
+        heading={LABEL.class} 
+        label={LABEL.class} 
+        name={FIELD.class}
+        queryKey={QUERY_KEY.classes}
+        endpoint={ENDPOINT.class}
+      />
+      {/* Section */}
+      <Section
+        heading={LABEL.section}
+        label={LABEL.section}
+        name={FIELD.section}
+        queryKey={QUERY_KEY.sections}
+        endpoint={ENDPOINT.section}
+      />
+      {/* Language */}
+      <Section
+        heading={LABEL.language}
+        label={LABEL.language}
+        name={FIELD.language}
+        queryKey={QUERY_KEY.languages}
+        endpoint={ENDPOINT.language}
+      />
+    </>
+  );
+};
 
-  const [pagination, setPagination] = useState<DataTablePaginationState>({
-    pageSize: 5,
-    pageIndex: 0,
+type SectionProps = {
+  heading: string;
+  label: string;
+  name: string;
+  queryKey: string;
+  endpoint: string;
+};
+
+const Section = ({
+  heading,
+  label,
+  name,
+  endpoint,
+  queryKey,
+}: SectionProps) => {
+  const formMethods = useForm({
+    defaultValues: {
+      [name]: "",
+    },
   });
+  const [open, setOpen] = useState<boolean>(false);
 
-  const [className, setClassName] = useState("");
+  const columns = [
+    columnHelper.accessor("id", { header: "ID" }),
+    columnHelper.accessor("name", { header: "Name" }),
+  ];
 
-  const { data, isLoading } = useQuery<IdNameResponse>({
-    queryFn: () =>
-      sdk.client.fetch(`/admin/api/class`, {
-        query: {
-          skip: pagination.pageIndex * pagination.pageSize,
-          limit: pagination.pageSize,
-        },
-      }),
-    queryKey: ["class", pagination.pageIndex, pagination.pageSize],
-  });
-
-  const createClass = useMutation({
-    mutationFn: async () => {
-      return sdk.client.fetch(`/admin/api/class`, {
-        method: "POST",
-        body: { name: className, portal_id: "portal_1" },
-        headers: { "Content-Type": "application/json" },
-      });
-    },
-    onSuccess: () => {
-      toast.success("Class created successfully");
-      setClassName("");
-      queryClient.invalidateQueries({ queryKey: ["class"] });
-    },
-    onError: (error) => {
-      console.error("Error creating class:", error);
-      toast.error(error?.message || "Error creating class");
-    },
-  });
-
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      createClass.mutate();
-    },
-    [createClass]
+  const create = usePostData(
+    queryKey,
+    endpoint,
+    `${label} created successfully!`
   );
 
-  const table = useDataTable({
-    columns,
-    data: data?.list || [],
-    getRowId: (row) => row.id,
-    rowCount: data?.count || 0,
-    isLoading,
-    pagination: { state: pagination, onPaginationChange: setPagination },
+  const handleSubmit = formMethods.handleSubmit((values) => {
+    create.mutate({ name: values[name], portal_id: "portal_1" });
+    setOpen(false);
+    formMethods.reset();
   });
 
   return (
-    <Container className="divide-y p-0">
-      <Heading className="p-5">Academy</Heading>
-      <DataTable instance={table}>
-        {/* <DataTable.Toolbar className="flex flex-col items-start md:flex-row md:items-center"></DataTable.Toolbar> */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex items-center justify-between p-3"
+    <Container className="divide-x p-0 mb-5">
+      <div className="flex flex-row items-start justify-between gap-2 md:flex-row md:items-center">
+        <Heading className="p-4">{heading}</Heading>
+        <Button
+          type="button"
+          onClick={() => setOpen(true)}
+          variant="secondary"
+          className="mr-5"
         >
-          <Heading className="pl-2">Class</Heading>
-          <div className="flex items-center gap-4 pr-5">
-            <Input
-              name="className"
-              value={className}
-              onChange={(e) => setClassName(e.target.value)}
-              required
-              className="w-64"
-            />
-            <Button type="submit" isLoading={createClass.isPending}>
-              Add
-            </Button>
-          </div>
-        </form>
-        <DataTable.Table />
-        <DataTable.Pagination />
-      </DataTable>
+          Create
+        </Button>
+      </div>
+
+      <DataTable
+        limit={5}
+        queryKey={queryKey}
+        endpoint={endpoint}
+        columns={columns}
+      />
+
+      <FormProvider {...formMethods}>
+        <FormModal
+          submitTxt="Save"
+          heading={`Create ${heading}`}
+          open={open}
+          setOpen={() => setOpen(!open)}
+          onSave={handleSubmit}
+        >
+          <TextInput
+            label={label}
+            name={name}
+            placeholder={`Enter ${label}`}
+            rules={{
+              required: `${label} name is required`,
+            }}
+          />
+        </FormModal>
+      </FormProvider>
     </Container>
   );
 };
 
 export const config = defineRouteConfig({
-  label: "Academy",
+  label: WIDGET.ACADEMY,
   icon: AcademicCapSolid,
 });
 

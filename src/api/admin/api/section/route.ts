@@ -1,5 +1,12 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { APP_MODULE, NameInput, NameSchema, nameSchema } from "src/constants";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {
+  APP_ENTITY,
+  APP_MODULE,
+  NameInput,
+  NameSchema,
+  nameSchema,
+} from "src/constants";
 import AcademyService from "src/modules/academy/service";
 
 export const POST = async (
@@ -35,6 +42,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const academyService: AcademyService = req.scope.resolve(
       APP_MODULE.ACADEMY
     );
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
     if (req.query.id) {
       const get_section = await academyService.retrieveSection(
         req.query.id as string
@@ -42,8 +50,22 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       res.status(200).json({ get_section });
       return;
     }
-    const get_sections = await academyService.listSections();
-    res.status(200).json(get_sections);
+
+    const { data: sections, metadata } = await query.graph({
+      entity: APP_ENTITY.section,
+      fields: ["id", "name"],
+      pagination: {
+        skip: Number(req.query.skip) || 0,
+        take: Number(req.query.take) || 5,
+      },
+    });
+
+    res.json({
+      list: sections,
+      count: metadata?.count,
+      limit: Number(req.query.skip),
+      offset: Number(req.query.take),
+    });
   } catch (error) {
     res.json(error);
   }
