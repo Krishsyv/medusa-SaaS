@@ -7,26 +7,15 @@ export type Action = {
   icon: ReactNode;
   label: string;
   disabled?: boolean;
-} & (
-  | {
-      to: string;
-      onClick?: never;
-    }
-  | {
-      onClick: () => void;
-      to?: never;
-    }
-);
+  onClick?: () => void;
+  to?: never;
+};
 
 export type ActionGroup = {
   actions: Action[];
 };
 
-export type ActionMenuProps = {
-  groups: ActionGroup[];
-};
-
-export const ActionMenu = ({ groups }: ActionMenuProps) => {
+export const ActionMenu = ({ groups }: { groups: ActionGroup[] }) => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -44,49 +33,57 @@ export const ActionMenu = ({ groups }: ActionMenuProps) => {
 
           return (
             <DropdownMenu.Group key={index}>
-              {group.actions.map((action, index) => {
-                if (action.onClick) {
-                  return (
-                    <DropdownMenu.Item
-                      disabled={action.disabled}
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        action.onClick();
-                      }}
-                      className={clx(
-                        "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
-                        {
-                          "[&_svg]:text-ui-fg-disabled": action.disabled,
-                        }
-                      )}
-                    >
-                      {action.icon}
-                      <span>{action.label}</span>
-                    </DropdownMenu.Item>
-                  );
+              {group.actions.map(
+                (
+                  { icon, label, disabled = false, onClick = () => {}, to },
+                  index
+                ) => {
+                  if (onClick) {
+                    return (
+                      <DropdownMenu.Item
+                        disabled={disabled}
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClick();
+                        }}
+                        className={clx(
+                          "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
+                          {
+                            "[&_svg]:text-ui-fg-disabled": disabled,
+                          }
+                        )}
+                      >
+                        {icon}
+                        <span>{label}</span>
+                      </DropdownMenu.Item>
+                    );
+                  }
+                  if (to) {
+                    return (
+                      <div key={index}>
+                        <DropdownMenu.Item
+                          className={clx(
+                            "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
+                            {
+                              "[&_svg]:text-ui-fg-disabled": disabled,
+                            }
+                          )}
+                          asChild
+                          disabled={disabled}
+                        >
+                          {
+                            <Link to={to} onClick={(e) => e.stopPropagation()}>
+                              {icon}
+                              <span>{label}</span>
+                            </Link>
+                          }
+                        </DropdownMenu.Item>
+                      </div>
+                    );
+                  }
                 }
-
-                return (
-                  <div key={index}>
-                    <DropdownMenu.Item
-                      className={clx(
-                        "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
-                        {
-                          "[&_svg]:text-ui-fg-disabled": action.disabled,
-                        }
-                      )}
-                      asChild
-                      disabled={action.disabled}
-                    >
-                      <Link to={action.to} onClick={(e) => e.stopPropagation()}>
-                        {action.icon}
-                        <span>{action.label}</span>
-                      </Link>
-                    </DropdownMenu.Item>
-                  </div>
-                );
-              })}
+              )}
               {!isLast && <DropdownMenu.Separator />}
             </DropdownMenu.Group>
           );

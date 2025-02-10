@@ -5,6 +5,7 @@ import {
 } from "@medusajs/ui";
 import { useMemo, useState } from "react";
 import { useGetData } from "../lib/use_api";
+import { ListResponse } from "../shared";
 
 type DataTableProps = {
   limit: number;
@@ -30,7 +31,7 @@ export const DataTable = ({
     return pagination.pageIndex * pagination.pageIndex;
   }, [pagination]);
 
-  const { data, isLoading } = useGetData<{ list: any[]; count: number }>(
+  const { data, isLoading } = useGetData<ListResponse>(
     queryKey,
     endpoint,
     {

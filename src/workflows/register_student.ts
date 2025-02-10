@@ -202,7 +202,7 @@ const createAuthAndProvider = createStep(
   }
 );
 
-const registerCustomerWorkflow = createWorkflow(
+const registerStudentWorkflow = createWorkflow(
   WorkFlow.NAME,
   function (input: RegisterStudentInput) {
     try {
@@ -224,4 +224,4 @@ const registerCustomerWorkflow = createWorkflow(
   }
 );
 
-export default registerCustomerWorkflow;
+export default registerStudentWorkflow;

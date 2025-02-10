@@ -1,6 +1,6 @@
 export enum CLASS_KIT_TYPE {
-  OPEN = "open",
-  CLOSED = "closed",
+  BUNDLE = "bundle",
+  FREE = "free",
 }
 
 export enum GENDER {
@@ -19,27 +19,32 @@ export type RegisterStudentInput = {
 };
 
 export type NameInput = {
-  portal_id: string;
   name: string;
 };
 
 export type KitInput = {
-  portal_id: string;
   product_id: string;
+  name: string;
+  academic_id: string;
   qty: number;
   status: boolean;
 };
 
 export type ClassKitInput = {
-  portal_id: string;
   kit_id: string;
   class_id: string;
   type: CLASS_KIT_TYPE;
   is_customizable: boolean;
   second_language: string;
-  third_language: string;
-  third_language_status: boolean;
-  status: boolean;
+  third_language?: string;
+  third_language_status?: boolean;
+  status?: boolean;
+};
+
+export type AcademicInput = {
+  year: string;
+  year_number: number;
+  kit_id?: string;
 };
 
 export type StudentProfileInput = {

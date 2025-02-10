@@ -13,8 +13,6 @@ export const useGetData = <T>(
     queryFn: async () => {
       return sdk.client.fetch(endpoint, { query: params });
     },
-    experimental_prefetchInRender: true,
-    throwOnError: true,
   });
 };
 
@@ -51,7 +49,7 @@ export const usePatchData = <T>(
   const queryClient = useQueryClient();
   return useMutation<T, unknown, { id: string; data: object }>({
     mutationFn: async ({ id, data }) => {
-      return sdk.client.fetch(`${endpoint}/${id}`, {
+      return sdk.client.fetch(`${endpoint}?id=${id}`, {
         method: API_TYPE.PATCH,
         body: data,
         headers: { "Content-Type": "application/json" },
@@ -76,7 +74,7 @@ export const useDeleteData = (
   const queryClient = useQueryClient();
   return useMutation<void, unknown, string>({
     mutationFn: async (id) => {
-      return sdk.client.fetch(`${endpoint}/${id}`, {
+      return sdk.client.fetch(`${endpoint}?id=${id}`, {
         method: API_TYPE.DELETE,
       });
     },
@@ -91,16 +89,3 @@ export const useDeleteData = (
   });
 };
 
-// Usage
-
-// // Update class
-// const updateClass = usePatchData("classes", "/admin/api/class", "Class updated successfully!");
-// const handleUpdate = (id: string) => {
-//   updateClass.mutate({ id, data: { name: "Updated Class" } });
-// };
-
-// // Delete class
-// const deleteClass = useDeleteData("classes", "/admin/api/class", "Class deleted successfully!");
-// const handleDelete = (id: string) => {
-//   deleteClass.mutate(id);
-// };

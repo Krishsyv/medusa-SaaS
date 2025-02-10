@@ -1,27 +1,39 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20250201072131 extends Migration {
+export class Migration20250208165458 extends Migration {
 
   async up(): Promise<void> {
-    this.addSql('create table if not exists "class" ("id" text not null, "portal_id" text not null, "name" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "class_pkey" primary key ("id"));');
-    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_class_deleted_at" ON "class" (deleted_at) WHERE deleted_at IS NULL;');
-    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_class_name_portal_id_unique" ON "class" (name, portal_id) WHERE deleted_at IS NULL;');
+    this.addSql('create table if not exists "academic" ("id" text not null, "portal_id" text not null, "year" text not null, "year_number" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "academic_pkey" primary key ("id"));');
+    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_academic_deleted_at" ON "academic" (deleted_at) WHERE deleted_at IS NULL;');
+    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_academic_year_portal_id_unique" ON "academic" (year, portal_id) WHERE deleted_at IS NULL;');
 
-    this.addSql('create table if not exists "class_kit" ("id" text not null, "portal_id" text not null, "Kit_id" text not null, "class_id" text not null, "type" text check ("type" in (\'open\', \'closed\')) not null, "is_customizable" boolean not null default false, "second_language" text not null, "third_language" text null, "third_language_status" boolean not null default false, "status" boolean not null default false, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "class_kit_pkey" primary key ("id"));');
+    this.addSql('create table if not exists "class_kit" ("id" text not null, "portal_id" text not null, "kit_id" text not null, "class_id" text not null, "type" text check ("type" in (\'bundle\', \'free\')) not null, "is_customizable" boolean not null default false, "second_language" text not null, "third_language" text null, "third_language_status" boolean not null default false, "status" boolean not null default false, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "class_kit_pkey" primary key ("id"));');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_class_kit_deleted_at" ON "class_kit" (deleted_at) WHERE deleted_at IS NULL;');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_class_kit_portal_id" ON "class_kit" (portal_id) WHERE deleted_at IS NULL;');
 
-    this.addSql('create table if not exists "kit" ("id" text not null, "portal_id" text not null, "product_id" text not null, "qty" integer not null default 0, "status" boolean not null default false, "class_kit_id" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "kit_pkey" primary key ("id"));');
+    this.addSql('create table if not exists "class" ("id" text not null, "portal_id" text not null, "name" text not null, "class_kit_id" text null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "class_pkey" primary key ("id"));');
+    this.addSql('alter table if exists "class" add constraint "class_class_kit_id_unique" unique ("class_kit_id");');
+    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_class_name_unique" ON "class" (name) WHERE deleted_at IS NULL;');
+    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_class_class_kit_id" ON "class" (class_kit_id) WHERE deleted_at IS NULL;');
+    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_class_deleted_at" ON "class" (deleted_at) WHERE deleted_at IS NULL;');
+    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_class_name_portal_id_unique" ON "class" (name, portal_id) WHERE deleted_at IS NULL;');
+
+    this.addSql('create table if not exists "kit" ("id" text not null, "name" text not null, "portal_id" text not null, "product_id" text not null, "qty" integer not null default 0, "status" boolean not null default false, "academic_id" text null, "class_kit_id" text null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "kit_pkey" primary key ("id"));');
+    this.addSql('alter table if exists "kit" add constraint "kit_academic_id_unique" unique ("academic_id");');
     this.addSql('alter table if exists "kit" add constraint "kit_class_kit_id_unique" unique ("class_kit_id");');
+    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_kit_name_unique" ON "kit" (name) WHERE deleted_at IS NULL;');
+    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_kit_academic_id" ON "kit" (academic_id) WHERE deleted_at IS NULL;');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_kit_class_kit_id" ON "kit" (class_kit_id) WHERE deleted_at IS NULL;');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_kit_deleted_at" ON "kit" (deleted_at) WHERE deleted_at IS NULL;');
     this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_kit_product_id_portal_id_unique" ON "kit" (product_id, portal_id) WHERE deleted_at IS NULL;');
 
     this.addSql('create table if not exists "language" ("id" text not null, "portal_id" text not null, "name" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "language_pkey" primary key ("id"));');
+    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_language_name_unique" ON "language" (name) WHERE deleted_at IS NULL;');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_language_deleted_at" ON "language" (deleted_at) WHERE deleted_at IS NULL;');
     this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_language_name_portal_id_unique" ON "language" (name, portal_id) WHERE deleted_at IS NULL;');
 
     this.addSql('create table if not exists "section" ("id" text not null, "portal_id" text not null, "name" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "section_pkey" primary key ("id"));');
+    this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_section_name_unique" ON "section" (name) WHERE deleted_at IS NULL;');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_section_deleted_at" ON "section" (deleted_at) WHERE deleted_at IS NULL;');
     this.addSql('CREATE UNIQUE INDEX IF NOT EXISTS "IDX_section_name_portal_id_unique" ON "section" (name, portal_id) WHERE deleted_at IS NULL;');
 
@@ -39,7 +51,10 @@ export class Migration20250201072131 extends Migration {
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_student_profile_student_id" ON "student_profile" (student_id) WHERE deleted_at IS NULL;');
     this.addSql('CREATE INDEX IF NOT EXISTS "IDX_student_profile_deleted_at" ON "student_profile" (deleted_at) WHERE deleted_at IS NULL;');
 
-    this.addSql('alter table if exists "kit" add constraint "kit_class_kit_id_foreign" foreign key ("class_kit_id") references "class_kit" ("id") on update cascade;');
+    this.addSql('alter table if exists "class" add constraint "class_class_kit_id_foreign" foreign key ("class_kit_id") references "class_kit" ("id") on update cascade on delete set null;');
+
+    this.addSql('alter table if exists "kit" add constraint "kit_academic_id_foreign" foreign key ("academic_id") references "academic" ("id") on update cascade on delete set null;');
+    this.addSql('alter table if exists "kit" add constraint "kit_class_kit_id_foreign" foreign key ("class_kit_id") references "class_kit" ("id") on update cascade on delete set null;');
 
     this.addSql('alter table if exists "student" add constraint "student_class_id_foreign" foreign key ("class_id") references "class" ("id") on update cascade on delete set null;');
     this.addSql('alter table if exists "student" add constraint "student_section_id_foreign" foreign key ("section_id") references "section" ("id") on update cascade on delete set null;');
@@ -51,9 +66,13 @@ export class Migration20250201072131 extends Migration {
   }
 
   async down(): Promise<void> {
-    this.addSql('alter table if exists "student" drop constraint if exists "student_class_id_foreign";');
+    this.addSql('alter table if exists "kit" drop constraint if exists "kit_academic_id_foreign";');
+
+    this.addSql('alter table if exists "class" drop constraint if exists "class_class_kit_id_foreign";');
 
     this.addSql('alter table if exists "kit" drop constraint if exists "kit_class_kit_id_foreign";');
+
+    this.addSql('alter table if exists "student" drop constraint if exists "student_class_id_foreign";');
 
     this.addSql('alter table if exists "student" drop constraint if exists "student_second_language_id_foreign";');
 
@@ -65,9 +84,11 @@ export class Migration20250201072131 extends Migration {
 
     this.addSql('alter table if exists "student_profile" drop constraint if exists "student_profile_student_id_foreign";');
 
-    this.addSql('drop table if exists "class" cascade;');
+    this.addSql('drop table if exists "academic" cascade;');
 
     this.addSql('drop table if exists "class_kit" cascade;');
+
+    this.addSql('drop table if exists "class" cascade;');
 
     this.addSql('drop table if exists "kit" cascade;');
 

@@ -1,14 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { Input, Label } from "@medusajs/ui";
-
-type TextInputProps = {
-  name: string;
-  label?: string;
-  disabled?: boolean;
-  rules?: any;
-  placeholder?: string;
-  styles?: string;
-};
+import { TextInputProps } from "../../shared";
 
 export const TextInput = ({
   name,
@@ -17,6 +9,7 @@ export const TextInput = ({
   rules,
   placeholder,
   styles = "",
+  type="text",
 }: TextInputProps) => {
   const { control } = useFormContext();
 
@@ -37,12 +30,14 @@ export const TextInput = ({
           )}
           <Input
             id={name}
+            type={type}
             onChange={onChange}
             onBlur={onBlur}
             value={value || ""}
             disabled={disabled}
             placeholder={placeholder}
             className={`w-full ${styles}`}
+            aria-invalid={!!error?.message}
           />
           {error && <Label className="text-red-500">{error.message}</Label>}
         </div>

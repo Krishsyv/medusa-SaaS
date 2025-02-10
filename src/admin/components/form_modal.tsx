@@ -26,8 +26,8 @@ export const FormModal = ({
           <FocusModal.Header>
             <Button onClick={onSave}>{submitTxt}</Button>
           </FocusModal.Header>
-          <FocusModal.Body className="flex flex-col items-center py-16">
-            <div className="flex w-full max-w-lg flex-col gap-y-8">
+          <FocusModal.Body className="flex flex-col items-center py-5 overflow-x-auto">
+            <div className="flex w-full max-w-lg flex-col gap-y-5">
               <div className="flex flex-col gap-y-1">
                 <Heading>{heading}</Heading>
                 {text && <Text className="text-ui-fg-subtle">{text}</Text>}

@@ -9,7 +9,11 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils";
 
-import { APP_MODULE, RegisterStudentInput } from "src/constants";
+import {
+  APP_MODULE,
+  RegisterStudentInput,
+  RegisterAdminUserInput,
+} from "src/constants";
 
 class AppAuthServiceProvider extends AbstractAuthModuleProvider {
   static identifier = APP_MODULE.APP_AUTH;
@@ -23,10 +27,12 @@ class AppAuthServiceProvider extends AbstractAuthModuleProvider {
     data: AuthenticationInput,
     authIdentityProviderService: AuthIdentityProviderService
   ): Promise<AuthenticationResponse> {
-    const { portal_id, student_enrollment_code, password } =
-      data.body as RegisterStudentInput;
+    const { portal_id, student_enrollment_code, email, role, password } =
+      data.body as RegisterStudentInput & RegisterAdminUserInput;
     try {
-      const entity_id = `${portal_id}|${student_enrollment_code}`;
+      const entity_id = role
+        ? `${portal_id}|${email}`
+        : `${portal_id}|${student_enrollment_code}`;
       const authIdentity = await authIdentityProviderService.retrieve({
         entity_id,
       });
@@ -59,14 +65,18 @@ class AppAuthServiceProvider extends AbstractAuthModuleProvider {
     data: AuthenticationInput,
     authIdentityProviderService: AuthIdentityProviderService
   ): Promise<AuthenticationResponse> {
-    const { portal_id, student_enrollment_code, password } =
-      data.body as RegisterStudentInput;
-    const entity_id = `${portal_id}|${student_enrollment_code}`;
+    const { portal_id, student_enrollment_code, email, role, password } =
+      data.body as RegisterStudentInput & RegisterAdminUserInput;
+    const entity_id = role
+      ? `${portal_id}|${email}`
+      : `${portal_id}|${student_enrollment_code}`;
     try {
       await authIdentityProviderService.retrieve({ entity_id });
       return {
         success: false,
-        error: "User already exists with this Student Id in this Portal",
+        error: role
+          ? `User already exists with this email:${email} in this Portal:${portal_id}`
+          : `User already exists with this Student Id:${student_enrollment_code} in this Portal:${portal_id}`,
       };
     } catch (error) {
       if (error.type === MedusaError.Types.NOT_FOUND) {
@@ -74,7 +84,9 @@ class AppAuthServiceProvider extends AbstractAuthModuleProvider {
           entity_id,
           user_metadata: {
             portal_id,
-            student_enrollment_code,
+            [role ? "email" : "student_enrollment_code"]: role
+              ? email
+              : student_enrollment_code,
           },
           provider_metadata: {
             password,

@@ -7,6 +7,7 @@ import {
   StudentProfile,
   ClassKit,
   Kit,
+  Academic,
 } from "./models";
 
 class AcademyService extends MedusaService({
@@ -17,6 +18,7 @@ class AcademyService extends MedusaService({
   Student,
   ClassKit,
   StudentProfile,
+  Academic,
 }) {}
 
 export default AcademyService;

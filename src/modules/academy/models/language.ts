@@ -6,7 +6,7 @@ export const Language = model
   .define(APP_ENTITY.language, {
     id: model.id().primaryKey(),
     portal_id: model.text().searchable(),
-    name: model.text().searchable(),
+    name: model.text().unique().searchable(),
     second_language_students: model.hasMany(() => Student, {
       mappedBy: "second_language",
     }),

@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import { AcademicCapSolid } from "@medusajs/icons";
+import { AcademicCapSolid, Pencil } from "@medusajs/icons";
 import {
   Heading,
   Container,
   Button,
   createDataTableColumnHelper,
 } from "@medusajs/ui";
-import { FormProvider, useForm } from "react-hook-form";
-import { FormModal, TextInput, DataTable } from "../../components";
-import { ENDPOINT, IdNameDTO, QUERY_KEY, WIDGET } from "../../shared";
-import { usePostData } from "../../lib/use_api";
+import { DataTable, ActionMenu } from "../../components";
+import {
+  DefaultKeys,
+  ENDPOINT,
+  NameInput,
+  QUERY_KEY,
+  WIDGET,
+  IdKey,
+} from "../../shared";
+import { Create } from "./create";
+import { Edit } from "./edit";
+import { format } from "date-fns";
 
-const columnHelper = createDataTableColumnHelper<IdNameDTO>();
+const columnHelper = createDataTableColumnHelper<
+  IdKey & NameInput & DefaultKeys
+>();
 
 enum LABEL {
   class = "Class",
@@ -20,21 +30,14 @@ enum LABEL {
   language = "Language",
 }
 
-enum FIELD {
-  class = "class",
-  section = "section",
-  language = "language",
-}
-
 const AcademyPage = () => {
   return (
     <>
       <Heading className="p-5">Academy</Heading>
       {/* Class */}
-      <Section 
-        heading={LABEL.class} 
-        label={LABEL.class} 
-        name={FIELD.class}
+      <Section
+        heading={LABEL.class}
+        label={LABEL.class}
         queryKey={QUERY_KEY.classes}
         endpoint={ENDPOINT.class}
       />
@@ -42,7 +45,6 @@ const AcademyPage = () => {
       <Section
         heading={LABEL.section}
         label={LABEL.section}
-        name={FIELD.section}
         queryKey={QUERY_KEY.sections}
         endpoint={ENDPOINT.section}
       />
@@ -50,7 +52,6 @@ const AcademyPage = () => {
       <Section
         heading={LABEL.language}
         label={LABEL.language}
-        name={FIELD.language}
         queryKey={QUERY_KEY.languages}
         endpoint={ENDPOINT.language}
       />
@@ -61,41 +62,51 @@ const AcademyPage = () => {
 type SectionProps = {
   heading: string;
   label: string;
-  name: string;
   queryKey: string;
   endpoint: string;
 };
 
-const Section = ({
-  heading,
-  label,
-  name,
-  endpoint,
-  queryKey,
-}: SectionProps) => {
-  const formMethods = useForm({
-    defaultValues: {
-      [name]: "",
-    },
-  });
-  const [open, setOpen] = useState<boolean>(false);
+const Section = ({ heading, label, endpoint, queryKey }: SectionProps) => {
+  const [openCreate, setOpenCreate] = useState<boolean>(false);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [item, setItem] = useState<IdKey & NameInput>({ id: "", name: "" });
 
   const columns = [
     columnHelper.accessor("id", { header: "ID" }),
     columnHelper.accessor("name", { header: "Name" }),
+    columnHelper.accessor("created_at", {
+      header: "Created At",
+      cell: ({ getValue }) => format(getValue(), "dd-MM-yyyy") || "-",
+    }),
+    columnHelper.accessor("updated_at", {
+      header: "Updated At",
+      cell: ({ getValue }) => format(getValue(), "dd-MM-yyyy") || "-",
+    }),
+    columnHelper.accessor("id", {
+      header: "Actions",
+      maxSize: 50,
+      cell: ({ row }) => (
+        <ActionMenu
+          groups={[
+            {
+              actions: [
+                {
+                  icon: <Pencil />,
+                  label: "Edit",
+                  onClick: () => onUpdate(row.original),
+                },
+              ],
+            },
+          ]}
+        />
+      ),
+    }),
   ];
 
-  const create = usePostData(
-    queryKey,
-    endpoint,
-    `${label} created successfully!`
-  );
-
-  const handleSubmit = formMethods.handleSubmit((values) => {
-    create.mutate({ name: values[name], portal_id: "portal_1" });
-    setOpen(false);
-    formMethods.reset();
-  });
+  const onUpdate = (row: IdKey & NameInput & DefaultKeys) => {
+    setOpenEdit(true);
+    setItem(row);
+  };
 
   return (
     <Container className="divide-x p-0 mb-5">
@@ -103,7 +114,7 @@ const Section = ({
         <Heading className="p-4">{heading}</Heading>
         <Button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => setOpenCreate(true)}
           variant="secondary"
           className="mr-5"
         >
@@ -118,24 +129,23 @@ const Section = ({
         columns={columns}
       />
 
-      <FormProvider {...formMethods}>
-        <FormModal
-          submitTxt="Save"
-          heading={`Create ${heading}`}
-          open={open}
-          setOpen={() => setOpen(!open)}
-          onSave={handleSubmit}
-        >
-          <TextInput
-            label={label}
-            name={name}
-            placeholder={`Enter ${label}`}
-            rules={{
-              required: `${label} name is required`,
-            }}
-          />
-        </FormModal>
-      </FormProvider>
+      <Create
+        label={label}
+        open={openCreate}
+        heading={heading}
+        setOpen={setOpenCreate}
+        queryKey={queryKey}
+        endpoint={endpoint}
+      />
+      <Edit
+        label={label}
+        open={openEdit}
+        heading={heading}
+        setOpen={setOpenEdit}
+        queryKey={queryKey}
+        endpoint={endpoint}
+        item={item}
+      />
     </Container>
   );
 };

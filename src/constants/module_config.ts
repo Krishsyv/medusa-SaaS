@@ -8,4 +8,5 @@ export const generateResolvePath = (name: string, options = {}) => ({
 export const moduleResolves = [
   generateResolvePath(APP_MODULE.PORTAL),
   generateResolvePath(APP_MODULE.ACADEMY),
+  generateResolvePath(APP_MODULE.ADMIN_USER),
 ];

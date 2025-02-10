@@ -24,8 +24,17 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "name": {
-          "name": "name",
+        "year": {
+          "name": "year",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "year_number": {
+          "name": "year_number",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -66,27 +75,27 @@
           "mappedType": "datetime"
         }
       },
-      "name": "class",
+      "name": "academic",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_class_deleted_at",
+          "keyName": "IDX_academic_deleted_at",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_class_deleted_at\" ON \"class\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_academic_deleted_at\" ON \"academic\" (deleted_at) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_class_name_portal_id_unique",
+          "keyName": "IDX_academic_year_portal_id_unique",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_class_name_portal_id_unique\" ON \"class\" (name, portal_id) WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_academic_year_portal_id_unique\" ON \"academic\" (year, portal_id) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "class_pkey",
+          "keyName": "academic_pkey",
           "columnNames": [
             "id"
           ],
@@ -118,8 +127,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "Kit_id": {
-          "name": "Kit_id",
+        "kit_id": {
+          "name": "kit_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -144,8 +153,8 @@
           "primary": false,
           "nullable": false,
           "enumItems": [
-            "open",
-            "closed"
+            "bundle",
+            "free"
           ],
           "mappedType": "enum"
         },
@@ -282,6 +291,157 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "class_kit_id": {
+          "name": "class_kit_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "class",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "class_kit_id"
+          ],
+          "composite": false,
+          "keyName": "class_class_kit_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "IDX_class_name_unique",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_class_name_unique\" ON \"class\" (name) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_class_class_kit_id",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_class_class_kit_id\" ON \"class\" (class_kit_id) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_class_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_class_deleted_at\" ON \"class\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_class_name_portal_id_unique",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_class_name_portal_id_unique\" ON \"class\" (name, portal_id) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "class_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "class_class_kit_id_foreign": {
+          "constraintName": "class_class_kit_id_foreign",
+          "columnNames": [
+            "class_kit_id"
+          ],
+          "localTableName": "public.class",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.class_kit",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "portal_id": {
+          "name": "portal_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
         "product_id": {
           "name": "product_id",
           "type": "text",
@@ -311,13 +471,22 @@
           "default": "false",
           "mappedType": "boolean"
         },
+        "academic_id": {
+          "name": "academic_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
         "class_kit_id": {
           "name": "class_kit_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "created_at": {
@@ -358,12 +527,37 @@
       "indexes": [
         {
           "columnNames": [
+            "academic_id"
+          ],
+          "composite": false,
+          "keyName": "kit_academic_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "columnNames": [
             "class_kit_id"
           ],
           "composite": false,
           "keyName": "kit_class_kit_id_unique",
           "primary": false,
           "unique": true
+        },
+        {
+          "keyName": "IDX_kit_name_unique",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_kit_name_unique\" ON \"kit\" (name) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_kit_academic_id",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_kit_academic_id\" ON \"kit\" (academic_id) WHERE deleted_at IS NULL"
         },
         {
           "keyName": "IDX_kit_class_kit_id",
@@ -401,6 +595,19 @@
       ],
       "checks": [],
       "foreignKeys": {
+        "kit_academic_id_foreign": {
+          "constraintName": "kit_academic_id_foreign",
+          "columnNames": [
+            "academic_id"
+          ],
+          "localTableName": "public.kit",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.academic",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
         "kit_class_kit_id_foreign": {
           "constraintName": "kit_class_kit_id_foreign",
           "columnNames": [
@@ -411,6 +618,7 @@
             "id"
           ],
           "referencedTableName": "public.class_kit",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }
@@ -480,6 +688,14 @@
       "name": "language",
       "schema": "public",
       "indexes": [
+        {
+          "keyName": "IDX_language_name_unique",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_language_name_unique\" ON \"language\" (name) WHERE deleted_at IS NULL"
+        },
         {
           "keyName": "IDX_language_deleted_at",
           "columnNames": [],
@@ -574,6 +790,14 @@
       "name": "section",
       "schema": "public",
       "indexes": [
+        {
+          "keyName": "IDX_section_name_unique",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_section_name_unique\" ON \"section\" (name) WHERE deleted_at IS NULL"
+        },
         {
           "keyName": "IDX_section_deleted_at",
           "columnNames": [],

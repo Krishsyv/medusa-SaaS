@@ -5,3 +5,4 @@ export * from "./language";
 export * from "./section";
 export * from "./student";
 export * from "./student_profile";
+export * from "./academic";
